@@ -15,11 +15,7 @@ and produce statistics and charts for:
  - basic class/label balance detection (if label-like columns exist)
 
 Usage:
-    python clean_bccc_vuls_dataset.py file1.csv file2.csv [--outdir analysis_output] [--show]
-
-Examples:
-    python clean_bccc_vuls_dataset.py train.csv test.csv
-    python clean_bccc_vuls_dataset.py part1.csv part2.csv --outdir reports --show
+    python clean_bccc_vuls_dataset.py
 
 Dependencies:
     pandas, numpy, matplotlib, seaborn, scipy (optional)
@@ -33,7 +29,6 @@ Outputs:
 Author: GitHub Copilot (adapted)
 """
 
-import argparse
 import os
 import sys
 import json
@@ -61,7 +56,7 @@ def mkdir_p(path):
     os.makedirs(path, exist_ok=True)
 
 def safe_filename(s):
-    return "".join(c if c.isalnum() or c in "-_." else "_" for c in str(s))
+    return "".join(c if c.isalnum() or c in "-_.'" else "_" for c in str(s))
 
 def detect_label_columns(df):
     # Heuristics to detect potential label columns
@@ -387,41 +382,39 @@ def save_summary_json(summary, outdir):
     return fname
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyze two CSV files and produce missing value, dtype, and other diagnostics + charts.")
-    parser.add_argument("file1", help="Path to first CSV file")
-    parser.add_argument("file2", help="Path to second CSV file")
-    parser.add_argument("--outdir", default="analysis_output", help="Directory to save charts and summary (default: analysis_output)")
-    parser.add_argument("--show", action="store_true", help="Show plots interactively (useful in notebooks/local).")
-    parser.add_argument("--sample", type=int, default=0, help="If >0, sample this many rows from each file before analysis (useful for very large files).")
-    args = parser.parse_args()
+    outdir = "analysis_output"
+    sample = 0
+    show = False
+    file1_path = "BCCC-VolSCs-2023_Secure.csv"
+    file2_path = "BCCC-VolSCs-2023_Vulnerable.csv"
 
-    mkdir_p(args.outdir)
+    mkdir_p(outdir)
 
-    print(f"Loading file1: {args.file1}")
+    print(f"Loading file1: {file1_path}")
     try:
-        df1 = pd.read_csv(args.file1)
+        df1 = pd.read_csv(file1_path)
     except Exception as e:
-        print(f"Failed to read {args.file1}: {e}", file=sys.stderr)
+        print(f"Failed to read {file1_path}: {e}", file=sys.stderr)
         sys.exit(1)
     print(f"Loaded file1 shape: {df1.shape}")
 
-    print(f"Loading file2: {args.file2}")
+    print(f"Loading file2: {file2_path}")
     try:
-        df2 = pd.read_csv(args.file2)
+        df2 = pd.read_csv(file2_path)
     except Exception as e:
-        print(f"Failed to read {args.file2}: {e}", file=sys.stderr)
+        print(f"Failed to read {file2_path}: {e}", file=sys.stderr)
         sys.exit(1)
     print(f"Loaded file2 shape: {df2.shape}")
 
-    if args.sample and args.sample > 0:
-        print(f"Sampling up to {args.sample} rows from each file for lightweight analysis.")
-        df1 = df1.sample(n=min(args.sample, df1.shape[0]), random_state=0)
-        df2 = df2.sample(n=min(args.sample, df2.shape[0]), random_state=0)
+    if sample and sample > 0:
+        print(f"Sampling up to {sample} rows from each file for lightweight analysis.")
+        df1 = df1.sample(n=min(sample, df1.shape[0]), random_state=0)
+        df2 = df2.sample(n=min(sample, df2.shape[0]), random_state=0)
 
     print("Analyzing first file...")
-    df1_full, info1 = analyze_file(args.file1, args.outdir, label="left")
+    df1_full, info1 = analyze_file(file1_path, outdir, label="left")
     print("Analyzing second file...")
-    df2_full, info2 = analyze_file(args.file2, args.outdir, label="right")
+    df2_full, info2 = analyze_file(file2_path, outdir, label="right")
 
     print("Comparing the two files...")
     comp = compare_two_frames(df1_full, df2_full)
@@ -434,7 +427,7 @@ def main():
         'comparison': comp
     }
 
-    summary_path = save_summary_json(summary, args.outdir)
+    summary_path = save_summary_json(summary, outdir)
     print(f"Saved JSON summary to: {summary_path}")
 
     # Print a readable console summary
@@ -467,9 +460,7 @@ def main():
     for item in info2.get('top_correlations', [])[:10]:
         print(f"  {item['col1']} <> {item['col2']}, corr={item['corr']:.3f}")
 
-    print(f"\nAll charts and outputs saved to: {os.path.abspath(args.outdir)}")
-    if args.show:
-        print("Showing generated PNG files is not implemented in this script; set --show to display inline when run in an environment that supports it.")
+    print(f"\nAll charts and outputs saved to: {os.path.abspath(outdir)}")
     print("Done.")
 
 if __name__ == "__main__":
