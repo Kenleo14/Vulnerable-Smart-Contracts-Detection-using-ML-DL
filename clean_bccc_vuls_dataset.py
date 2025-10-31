@@ -92,8 +92,8 @@ def summarize_df_basic(df):
     summary['rows_with_any_missing'] = int(df.isna().any(axis=1).sum())
     summary['percent_rows_with_missing'] = float(summary['rows_with_any_missing']) / max(1, summary['num_rows'])
     # dtype counts
-    dtypes = df.dtypes.astype(str).value_counts().to_dict()
-    summary['dtypes'] = dtypes
+    dtypes = df.dtypes.astype(str).value_counts()
+    summary['dtypes'] = dtypes.to_dict()
     return summary
 
 def plot_missing_by_column(df, outpath, title_suffix=""):
@@ -146,7 +146,7 @@ def plot_missing_row_counts(df, outpath, title_suffix=""):
 def plot_dtype_counts(df, outpath, title_suffix=""):
     dtypes = df.dtypes.astype(str).value_counts()
     plt.figure(figsize=(6, 4))
-    sns.barplot(x=dtypes.index, y=dtypes.values, palette="pastel")
+    sns.barplot(x=dtypes.index, y=dtypes.values, hue=dtypes.index, palette="pastel", legend=False)
     plt.ylabel("Number of columns")
     plt.xlabel("Dtype")
     plt.title(f"Feature types {title_suffix}")
@@ -227,7 +227,7 @@ def analyze_categorical(df, outdir, prefix, max_unique_for_plot=20):
         if nunique <= max_unique_for_plot:
             counts = df[col].value_counts(dropna=False)
             plt.figure(figsize=(6, max(3, 0.3 * len(counts))))
-            sns.barplot(y=counts.index.astype(str), x=counts.values, palette="Set3")
+            sns.barplot(y=counts.index.astype(str), x=counts.values, hue=counts.index.astype(str), palette="Set3", legend=False)
             plt.xlabel("Count")
             plt.ylabel(col)
             plt.title(f"Value counts for {col}")
