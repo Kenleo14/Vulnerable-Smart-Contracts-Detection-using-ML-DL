@@ -46,5 +46,3 @@ python clean_bccc_vuls_dataset.py
 
 # run main train model script
 python main_bert_vuln_classification.py
-or
-main_bert_vuln_classification.ipynb
