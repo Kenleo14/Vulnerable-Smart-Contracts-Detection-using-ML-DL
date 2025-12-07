@@ -1,8 +1,3 @@
-"""
-Random Forest Classifier for Vulnerable Smart Contracts Detection
-*** FIXED: Removes data leakage from 'Unnamed: 0' column ***
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -11,9 +6,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler
 import joblib
 
-# ============================================
-# 1. Load Dataset (*** UPDATED FUNCTION ***)
-# ============================================
+# Load Dataset
 def load_data(filepath):
     """Load the dataset and remove the leaky 'Unnamed: 0' index column."""
     print(f"Loading dataset from: {filepath}")
@@ -31,10 +24,8 @@ def load_data(filepath):
     
     print(f"Dataset loaded: {df.shape[0]} samples, {df.shape[1]} columns")
     return df
-
-# ============================================
-# 2. Preprocess Data for Classical Models
-# ============================================
+    
+# Preprocess Data for Classical Models
 def preprocess_data(df, target_column):
     """Select only numeric features, separate from target, and split into train/test sets."""
     y = df[target_column]
@@ -57,9 +48,7 @@ def preprocess_data(df, target_column):
     
     return X_train_scaled, X_test_scaled, y_train, y_test, scaler, X.columns
 
-# ============================================
-# 3. Train Random Forest Model
-# ============================================
+# Train Random Forest Model
 def train_random_forest(X_train, y_train, n_estimators=100, max_depth=None):
     """Train a Random Forest classifier."""
     print("\nTraining Random Forest Classifier...")
@@ -77,9 +66,7 @@ def train_random_forest(X_train, y_train, n_estimators=100, max_depth=None):
     
     return rf_model
 
-# ============================================
-# 4. Evaluate Model
-# ============================================
+# Evaluate Model
 def evaluate_model(model, X_test, y_test):
     """Evaluate the model and print metrics."""
     y_pred = model.predict(X_test)
@@ -98,9 +85,7 @@ def evaluate_model(model, X_test, y_test):
     
     return y_pred
 
-# ============================================
-# 5. Feature Importance
-# ============================================
+# Feature Importance
 def get_feature_importance(model, feature_names, top_n=10):
     """Get and display top N important features."""
     importances = model.feature_importances_
@@ -110,10 +95,8 @@ def get_feature_importance(model, feature_names, top_n=10):
     print("-" * 40)
     for i in range(min(top_n, len(feature_names))):
         print(f"{i+1}. {feature_names[indices[i]]}: {importances[indices[i]]:.4f}")
-
-# ============================================
-# 6. Save Model
-# ============================================
+        
+# Save Model
 def save_model(model, scaler, model_path='random_forest_model.pkl', scaler_path='rf_scaler.pkl'):
     """Save the trained model and scaler."""
     joblib.dump(model, model_path)
@@ -121,9 +104,7 @@ def save_model(model, scaler, model_path='random_forest_model.pkl', scaler_path=
     print(f"\nModel saved to: {model_path}")
     print(f"Scaler saved to: {scaler_path}")
 
-# ============================================
 # Main Execution
-# ============================================
 if __name__ == "__main__":
     DATASET_PATH = "full_contracts_dataset_with_source.csv"
     TARGET_COLUMN = "label"
