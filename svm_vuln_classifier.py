@@ -1,8 +1,3 @@
-"""
-Support Vector Machine (SVM) Classifier using LinearSVC for fast training.
-*** FIXED: Removes data leakage from 'Unnamed: 0' column ***
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -10,12 +5,9 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler
 import joblib
 
-# Import LinearSVC for a fast, CPU-based linear model
 from sklearn.svm import LinearSVC
 
-# ============================================
-# 1. Load Dataset (*** UPDATED FUNCTION ***)
-# ============================================
+# Load Dataset
 def load_data(filepath):
     """Load the dataset and remove the leaky 'Unnamed: 0' index column."""
     print(f"Loading dataset from: {filepath}")
@@ -33,10 +25,8 @@ def load_data(filepath):
         
     print(f"Dataset loaded: {df.shape[0]} samples, {df.shape[1]} columns")
     return df
-
-# ============================================
-# 2. Preprocess Data for Classical Models
-# ============================================
+    
+# Preprocess Data
 def preprocess_data(df, target_column):
     """Select only numeric features, separate from target, and split into train/test sets."""
     y = df[target_column]
@@ -59,9 +49,7 @@ def preprocess_data(df, target_column):
     
     return X_train_scaled, X_test_scaled, y_train, y_test, scaler
 
-# ============================================
-# 3. Train LinearSVC Model
-# ============================================
+# Train LinearSVC Model
 def train_linear_svc(X_train, y_train, C=1.0):
     """Train a LinearSVC classifier."""
     print("\nTraining LinearSVC Classifier (optimized for speed)...")
@@ -83,9 +71,7 @@ def train_linear_svc(X_train, y_train, C=1.0):
     
     return svm_model
 
-# ============================================
-# 4. Evaluate Model
-# ============================================
+# Evaluate Model
 def evaluate_model(model, X_test, y_test):
     """Evaluate the model and print metrics."""
     y_pred = model.predict(X_test)
@@ -102,9 +88,7 @@ def evaluate_model(model, X_test, y_test):
     print("\nConfusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-# ============================================
-# 5. Save Model
-# ============================================
+# Save Model
 def save_model(model, scaler, model_path='linear_svc_model.pkl', scaler_path='svm_scaler.pkl'):
     """Save the trained model and scaler."""
     joblib.dump(model, model_path)
@@ -112,9 +96,7 @@ def save_model(model, scaler, model_path='linear_svc_model.pkl', scaler_path='sv
     print(f"\nModel saved to: {model_path}")
     print(f"Scaler saved to: {scaler_path}")
 
-# ============================================
 # Main Execution
-# ============================================
 if __name__ == "__main__":
     DATASET_PATH = "full_contracts_dataset_with_source.csv"
     TARGET_COLUMN = "label"
